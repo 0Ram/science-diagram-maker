@@ -7,7 +7,7 @@ import { DiagramTable } from '../components/DiagramTable';
 import { DiagramModal } from '../components/DiagramModal';
 import { GenerateDialog } from '../components/GenerateDialog';
 import { fetchInitialDataset } from '../lib/api';
-import { loadSavedReviews, saveReviewDecision } from '../lib/storage';
+import { loadSavedReviews, saveReviewDecision, loadSavedCustomHistory, saveCustomDiagramToHistory } from '../lib/storage';
 import { reverifyAndFixResult } from '../lib/svgHelper';
 import { Dataset, ConceptResult, ReviewDecision } from '../types';
 import { Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
@@ -26,12 +26,23 @@ export default function Home() {
         setLoading(true);
         const data = await fetchInitialDataset();
         const savedReviews = loadSavedReviews();
+        const customHistory = loadSavedCustomHistory();
 
-        // Merge saved reviews from localStorage into the concept results
-        // and ensure verification checks reflect the latest geometric & scientific engine
-        const mergedResults = data.results.map((r) => {
+        // Merge saved reviews and custom generated history from localStorage
+        const allBaseResults = [...customHistory, ...data.results];
+
+        // Deduplicate by ID
+        const seenIds = new Set<string>();
+        const uniqueResults = allBaseResults.filter((r) => {
+          if (seenIds.has(r.id)) return false;
+          seenIds.add(r.id);
+          return true;
+        });
+
+        // Ensure verification checks reflect the latest geometric & scientific engine
+        const mergedResults = uniqueResults.map((r) => {
           let item = r;
-          if (item.validation_status !== 'passed') {
+          if (item.validation_status !== 'passed' || item.concept.toLowerCase().includes('newton')) {
             item = reverifyAndFixResult(item);
           }
           const saved = savedReviews[item.id];
@@ -85,7 +96,9 @@ export default function Home() {
     if (!dataset) return;
     const updatedResults = dataset.results.map((r) => {
       if (r.id === conceptId) {
-        return reverifyAndFixResult(r);
+        const fixed = reverifyAndFixResult(r);
+        saveCustomDiagramToHistory(fixed);
+        return fixed;
       }
       return r;
     });
@@ -104,6 +117,9 @@ export default function Home() {
       newResult.validation_status !== 'passed'
         ? reverifyAndFixResult(newResult)
         : newResult;
+
+    // Save to browser localStorage history so it persists across refreshes
+    saveCustomDiagramToHistory(verifiedResult);
 
     // Check if concept exists in table; if so update it, otherwise prepend
     const existingIndex = dataset.results.findIndex((r) => r.id === verifiedResult.id);
