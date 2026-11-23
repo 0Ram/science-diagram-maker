@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ConceptResult, CheckItem } from '@/types';
 
-// Prompts & Syllabus rules
-const CONCEPT_PROMPTS: Record<string, { title: string; subject: string; guidance: string; keywords: string[] }> = {
+// Predefined syllabus rules
+const PREDEFINED_CONCEPTS: Record<string, { title: string; subject: string; guidance: string; keywords: string[] }> = {
   pythagoras: {
     title: "Pythagoras' theorem",
     subject: "Maths",
@@ -47,7 +47,7 @@ function extractSvg(text: string): string {
   return cleaned;
 }
 
-function runChecks(svg: string, conceptId: string): { allPassed: boolean; checks: Record<string, CheckItem> } {
+function runChecks(svg: string, title: string, keywords: string[]): { allPassed: boolean; checks: Record<string, CheckItem> } {
   const checks: Record<string, CheckItem> = {};
   let allPassed = true;
 
@@ -62,7 +62,6 @@ function runChecks(svg: string, conceptId: string): { allPassed: boolean; checks
   if (!isValidXml) allPassed = false;
 
   // 2. ViewBox Bounds check
-  // Check that circles/rects don't exceed 800x500
   let boundsPassed = true;
   let boundsMsg = 'All graphical elements within 800x500 bounds';
   const circleMatches = svg.matchAll(/<circle[^>]*cx=["']([\d.]+)["'][^>]*cy=["']([\d.]+)["'][^>]*r=["']([\d.]+)["']/gi);
@@ -72,7 +71,7 @@ function runChecks(svg: string, conceptId: string): { allPassed: boolean; checks
     const r = parseFloat(m[3]);
     if (cx - r < 0 || cx + r > 800 || cy - r < 0 || cy + r > 500) {
       boundsPassed = false;
-      boundsMsg = `Circle at (${cx}, ${cy}) with radius ${r} extends beyond viewBox (0 0 800 500)`;
+      boundsMsg = `Circle at (${cx}, ${cy}) with radius ${r} extends beyond viewBox bounds (0 0 800 500)`;
       break;
     }
   }
@@ -107,16 +106,24 @@ function runChecks(svg: string, conceptId: string): { allPassed: boolean; checks
   };
   if (!animPassed) allPassed = false;
 
-  // 5. Concept science check
-  const meta = CONCEPT_PROMPTS[conceptId] || { title: conceptId, subject: 'Science', keywords: [] };
+  // 5. Scientific content check
   const lowerSvg = svg.toLowerCase();
-  const matchedKeywords = meta.keywords.filter(k => lowerSvg.includes(k.toLowerCase()));
-  const sciencePassed = matchedKeywords.length >= Math.min(2, meta.keywords.length);
+  let matched = keywords.filter(k => lowerSvg.includes(k.toLowerCase()));
+  let sciencePassed = false;
+  if (keywords.length > 0) {
+    sciencePassed = matched.length >= Math.min(2, keywords.length);
+  } else {
+    // Custom concept fallback: verify has at least 3 graphic primitives & labels
+    const primitiveCount = (svg.match(/<(circle|rect|path|line|polygon)/gi) || []).length;
+    sciencePassed = labelCount >= 3 && primitiveCount >= 3;
+    if (sciencePassed) matched = [title, 'visual elements'];
+  }
+
   checks['scientific_content'] = {
     passed: sciencePassed,
     message: sciencePassed
-      ? `Scientific syllabus criteria verified (${matchedKeywords.join(', ')})`
-      : `Missing required scientific components (${meta.keywords.join(', ')})`
+      ? `Scientific syllabus criteria verified (${matched.slice(0, 4).join(', ')})`
+      : `Missing key scientific components for ${title}`
   };
   if (!sciencePassed) allPassed = false;
 
@@ -126,13 +133,26 @@ function runChecks(svg: string, conceptId: string): { allPassed: boolean; checks
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const conceptId = body.concept_id || 'pythagoras';
-    const concept = CONCEPT_PROMPTS[conceptId] || {
-      title: conceptId,
-      subject: 'Science',
-      guidance: 'Create an accurate animated scientific illustration.',
-      keywords: []
-    };
+    const isCustom = Boolean(body.is_custom);
+    let conceptId = body.concept_id || 'pythagoras';
+    let conceptTitle = '';
+    let conceptSubject = 'Science';
+    let conceptGuidance = '';
+    let keywords: string[] = [];
+
+    if (isCustom && body.custom_name) {
+      conceptTitle = body.custom_name;
+      conceptSubject = body.custom_subject || 'Physics';
+      conceptGuidance = body.custom_description || `Create a clear scientific illustration explaining ${conceptTitle}.`;
+      conceptId = body.concept_id || `custom_${conceptTitle.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+      keywords = conceptGuidance.split(/\s+/).filter(w => w.length > 4).slice(0, 5);
+    } else {
+      const predefined = PREDEFINED_CONCEPTS[conceptId] || PREDEFINED_CONCEPTS['pythagoras'];
+      conceptTitle = predefined.title;
+      conceptSubject = predefined.subject;
+      conceptGuidance = predefined.guidance;
+      keywords = predefined.keywords;
+    }
 
     const apiKey = process.env.GEMINI_API_KEY;
     const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
@@ -145,18 +165,17 @@ export async function POST(req: NextRequest) {
     }
 
     const prompt = `You are a GCSE science educator. Create a scientifically accurate animated SVG diagram for:
-Concept: ${concept.title} (${concept.subject})
-Guidance: ${concept.guidance}
+Concept: ${conceptTitle} (${conceptSubject})
+Guidance: ${conceptGuidance}
 
 STRICT SVG RULES:
 - Return ONLY valid raw SVG XML. No markdown fences.
 - Use viewBox="0 0 800 500" width="100%" height="100%".
 - Keep every element strictly inside coordinates 20 to 780 and 20 to 480.
-- Include a <title>${concept.title}</title> tag.
-- Include at least 4 visible <text> labels.
-- Include CSS @keyframes or SMIL (<animate>) animation.`;
+- Include a <title>${conceptTitle}</title> tag.
+- Include at least 4 visible <text> labels explaining the scientific parts.
+- Include CSS @keyframes or SMIL (<animate>) animation demonstrating the scientific process.`;
 
-    // Call Gemini API via official REST endpoint
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
     const res = await fetch(url, {
       method: 'POST',
@@ -183,7 +202,7 @@ STRICT SVG RULES:
     const svgCode = extractSvg(rawText);
 
     // Run 5 code checks
-    const { allPassed, checks } = runChecks(svgCode, conceptId);
+    const { allPassed, checks } = runChecks(svgCode, conceptTitle, keywords);
 
     const promptTokens = resData.usageMetadata?.promptTokenCount || 450;
     const completionTokens = resData.usageMetadata?.candidatesTokenCount || 1100;
@@ -194,8 +213,8 @@ STRICT SVG RULES:
 
     const result: ConceptResult = {
       id: conceptId,
-      concept: concept.title,
-      subject: concept.subject,
+      concept: conceptTitle,
+      subject: conceptSubject,
       svg: svgCode,
       model: model,
       usage: {

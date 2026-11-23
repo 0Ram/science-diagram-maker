@@ -20,11 +20,26 @@ export async function fetchInitialDataset(): Promise<Dataset> {
   return await apiRes.json();
 }
 
+export interface GeneratePayload {
+  conceptId: string;
+  isCustom?: boolean;
+  customName?: string;
+  customSubject?: string;
+  customDescription?: string;
+}
+
 export async function generateConceptLive(
-  conceptId: string
+  payload: GeneratePayload | string
 ): Promise<{ success: boolean; result?: ConceptResult; error?: string }> {
   try {
-    // If NEXT_PUBLIC_API_URL is explicitly set, use it; otherwise use relative /api/generate
+    const body = typeof payload === 'string' ? { concept_id: payload } : {
+      concept_id: payload.conceptId,
+      is_custom: payload.isCustom,
+      custom_name: payload.customName,
+      custom_subject: payload.customSubject,
+      custom_description: payload.customDescription
+    };
+
     const endpoint = process.env.NEXT_PUBLIC_API_URL
       ? `${process.env.NEXT_PUBLIC_API_URL}/api/generate`
       : '/api/generate';
@@ -34,7 +49,7 @@ export async function generateConceptLive(
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ concept_id: conceptId }),
+      body: JSON.stringify(body),
     });
 
     const data = await res.json().catch(() => ({}));

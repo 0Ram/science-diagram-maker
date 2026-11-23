@@ -54,7 +54,10 @@ class Dataset(BaseModel):
 
 class GenerateRequest(BaseModel):
     concept_id: str
-    custom_prompt: Optional[str] = None
+    is_custom: Optional[bool] = False
+    custom_name: Optional[str] = None
+    custom_subject: Optional[str] = None
+    custom_description: Optional[str] = None
 
 
 class GenerateResponse(BaseModel):

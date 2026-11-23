@@ -94,7 +94,18 @@ def generate_concept_live(req: GenerateRequest):
         )
 
     try:
-        result: ConceptResult = generate_and_validate_concept(req.concept_id)
+        target_id = req.concept_id
+        if req.is_custom and req.custom_name:
+            target_id = req.concept_id or f"custom_{req.custom_name.lower().replace(' ', '_')}"
+            CONCEPTS[target_id] = {
+                "id": target_id,
+                "title": req.custom_name,
+                "subject": req.custom_subject or "Physics",
+                "concept_text": req.custom_description or f"Diagram explaining {req.custom_name}",
+                "specific_guidance": f"Create an accurate, animated educational illustration explaining {req.custom_name}. Include title, >=3 labels, and animation within viewBox 0 0 800 500."
+            }
+
+        result: ConceptResult = generate_and_validate_concept(target_id)
         if result.generation_status == "failed":
             return GenerateResponse(
                 success=False,

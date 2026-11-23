@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, X, AlertCircle, CheckCircle2, Loader2, ArrowRight } from 'lucide-react';
+import { Sparkles, X, AlertCircle, Loader2, BookOpen, PenTool } from 'lucide-react';
 import { generateConceptLive } from '../lib/api';
 import { ConceptResult } from '../types';
 
@@ -9,7 +9,7 @@ interface Props {
   onSuccess: (newResult: ConceptResult) => void;
 }
 
-const CONCEPTS = [
+const PREDEFINED_CONCEPTS = [
   { id: 'pythagoras', title: "Pythagoras' theorem (Maths)" },
   { id: 'circle', title: 'Parts of a circle (Maths)' },
   { id: 'circuit', title: 'Series circuit (Physics)' },
@@ -18,7 +18,14 @@ const CONCEPTS = [
 ];
 
 export const GenerateDialog: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
+  const [mode, setMode] = useState<'predefined' | 'custom'>('predefined');
   const [selectedConcept, setSelectedConcept] = useState('pythagoras');
+
+  // Custom concept fields
+  const [customName, setCustomName] = useState('');
+  const [customSubject, setCustomSubject] = useState('Physics');
+  const [customDescription, setCustomDescription] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +33,11 @@ export const GenerateDialog: React.FC<Props> = ({ isOpen, onClose, onSuccess }) 
   if (!isOpen) return null;
 
   const handleGenerate = async () => {
+    if (mode === 'custom' && (!customName.trim() || !customDescription.trim())) {
+      setError('Please provide both a concept name and a brief description.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setCurrentStep(1); // Calling Gemini
@@ -34,7 +46,18 @@ export const GenerateDialog: React.FC<Props> = ({ isOpen, onClose, onSuccess }) 
     const stepTimer2 = setTimeout(() => setCurrentStep(3), 3500); // Self-correcting / finalizing
 
     try {
-      const response = await generateConceptLive(selectedConcept);
+      const payload =
+        mode === 'predefined'
+          ? { conceptId: selectedConcept }
+          : {
+              conceptId: `custom_${customName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`,
+              isCustom: true,
+              customName: customName.trim(),
+              customSubject: customSubject.trim(),
+              customDescription: customDescription.trim(),
+            };
+
+      const response = await generateConceptLive(payload);
       clearTimeout(stepTimer1);
       clearTimeout(stepTimer2);
 
@@ -54,7 +77,7 @@ export const GenerateDialog: React.FC<Props> = ({ isOpen, onClose, onSuccess }) 
         setLoading(false);
         setCurrentStep(0);
         onClose();
-      }, 1000);
+      }, 800);
     } catch (err: any) {
       clearTimeout(stepTimer1);
       clearTimeout(stepTimer2);
@@ -83,32 +106,118 @@ export const GenerateDialog: React.FC<Props> = ({ isOpen, onClose, onSuccess }) 
           {!loading && (
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           )}
         </div>
 
+        {/* Mode Selector Tabs */}
+        <div className="px-6 pt-4 pb-0">
+          <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => { setMode('predefined'); setError(null); }}
+              className={`flex-1 py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                mode === 'predefined'
+                  ? 'bg-white text-indigo-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              Predefined Concept (5)
+            </button>
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => { setMode('custom'); setError(null); }}
+              className={`flex-1 py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                mode === 'custom'
+                  ? 'bg-white text-indigo-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <PenTool className="w-3.5 h-3.5" />
+              Custom Concept (Any Topic)
+            </button>
+          </div>
+        </div>
+
         {/* Body */}
         <div className="p-6 space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
-              Select Science Concept to Generate
-            </label>
-            <select
-              value={selectedConcept}
-              disabled={loading}
-              onChange={(e) => setSelectedConcept(e.target.value)}
-              className="w-full text-sm font-medium px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {CONCEPTS.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.title}
-                </option>
-              ))}
-            </select>
-          </div>
+          {mode === 'predefined' ? (
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                Select GCSE Science Concept
+              </label>
+              <select
+                value={selectedConcept}
+                disabled={loading}
+                onChange={(e) => setSelectedConcept(e.target.value)}
+                className="w-full text-sm font-medium px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+              >
+                {PREDEFINED_CONCEPTS.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-slate-500 mt-1.5">
+                Re-generates one of the 5 official curriculum diagrams with live Gemini API calls.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  Concept Name
+                </label>
+                <input
+                  type="text"
+                  disabled={loading}
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  placeholder="e.g. Newton's Laws of Motion"
+                  className="w-full text-sm px-3.5 py-2 rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  Subject
+                </label>
+                <select
+                  disabled={loading}
+                  value={customSubject}
+                  onChange={(e) => setCustomSubject(e.target.value)}
+                  className="w-full text-sm px-3.5 py-2 rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+                >
+                  <option value="Physics">Physics</option>
+                  <option value="Chemistry">Chemistry</option>
+                  <option value="Biology">Biology</option>
+                  <option value="Maths">Maths</option>
+                  <option value="Astronomy">Astronomy</option>
+                  <option value="General Science">General Science</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  Description / Key Rules for Diagram
+                </label>
+                <textarea
+                  rows={3}
+                  disabled={loading}
+                  value={customDescription}
+                  onChange={(e) => setCustomDescription(e.target.value)}
+                  placeholder="e.g. Newton's three laws explain the relationship between force, mass, and acceleration (F = ma) with action and reaction forces."
+                  className="w-full text-sm p-3 rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Error Banner */}
           {error && (
@@ -154,7 +263,7 @@ export const GenerateDialog: React.FC<Props> = ({ isOpen, onClose, onSuccess }) 
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 rounded-lg transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
           >
             Cancel
           </button>
@@ -171,7 +280,7 @@ export const GenerateDialog: React.FC<Props> = ({ isOpen, onClose, onSuccess }) 
             ) : (
               <>
                 <Sparkles className="w-4 h-4" />
-                Generate Concept
+                Generate Diagram
               </>
             )}
           </button>
