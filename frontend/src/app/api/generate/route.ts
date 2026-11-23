@@ -176,8 +176,8 @@ STRICT SVG RULES:
 - Include at least 4 visible <text> labels explaining the scientific parts.
 - Include CSS @keyframes or SMIL (<animate>) animation demonstrating the scientific process.`;
 
-    // Attempt generation with automatic retry backoff on 503 / 429
-    const modelsToTry = [preferredModel, 'gemini-2.0-flash', 'gemini-1.5-flash'];
+    // Attempt generation with verified available models on this account
+    const modelsToTry = [preferredModel, 'gemini-3.5-flash', 'gemini-flash-lite-latest'];
     let resData: any = null;
     let successfulModel = preferredModel;
     let apiRetries = 0;
