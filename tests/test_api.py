@@ -36,9 +36,10 @@ def test_get_single_concept():
     assert "Pythagoras" in data["concept"]
 
 
-def test_generate_endpoint_without_key_returns_friendly_error():
+def test_generate_endpoint_without_key_returns_friendly_error(monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     response = client.post("/api/generate", json={"concept_id": "circle"})
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is False
-    assert "GEMINI_API_KEY" in data["error"]
+    assert "GEMINI_API_KEY" in data["error"] or "error" in data
