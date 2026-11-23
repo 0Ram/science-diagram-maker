@@ -7,7 +7,7 @@ import { DiagramTable } from '../components/DiagramTable';
 import { DiagramModal } from '../components/DiagramModal';
 import { GenerateDialog } from '../components/GenerateDialog';
 import { fetchInitialDataset } from '../lib/api';
-import { loadSavedReviews, saveReviewDecision, loadSavedCustomHistory, saveCustomDiagramToHistory } from '../lib/storage';
+import { loadSavedReviews, saveReviewDecision, loadSavedCustomHistory, saveCustomDiagramToHistory, clearCustomDiagramHistory } from '../lib/storage';
 import { reverifyAndFixResult } from '../lib/svgHelper';
 import { Dataset, ConceptResult, ReviewDecision } from '../types';
 import { Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
@@ -178,6 +178,10 @@ export default function Home() {
               onReview={handleReview}
               onInspect={(r) => setInspectingResult(r)}
               onReverify={handleReverify}
+              onResetHistory={() => {
+                clearCustomDiagramHistory();
+                window.location.reload();
+              }}
             />
           </>
         ) : null}

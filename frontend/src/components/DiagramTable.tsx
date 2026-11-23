@@ -10,9 +10,10 @@ interface Props {
   onReview: (conceptId: string, decision: ReviewDecision, note: string) => void;
   onInspect: (result: ConceptResult) => void;
   onReverify?: (conceptId: string) => void;
+  onResetHistory?: () => void;
 }
 
-export const DiagramTable: React.FC<Props> = ({ results, onReview, onInspect, onReverify }) => {
+export const DiagramTable: React.FC<Props> = ({ results, onReview, onInspect, onReverify, onResetHistory }) => {
   const [recordingId, setRecordingId] = useState<string | null>(null);
   const [videoProgress, setVideoProgress] = useState<number>(0);
 
@@ -37,9 +38,21 @@ export const DiagramTable: React.FC<Props> = ({ results, onReview, onInspect, on
             Automated quality checks & expert reviewer workflow (decisions persist across page refreshes)
           </p>
         </div>
-        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-200 text-slate-700">
-          {results.length} Concepts
-        </span>
+        <div className="flex items-center gap-2">
+          {results.length > 5 && onResetHistory && (
+            <button
+              type="button"
+              onClick={onResetHistory}
+              className="text-xs text-slate-500 hover:text-red-600 transition-colors cursor-pointer underline"
+              title="Clear generated history and restore default 5 curriculum diagrams"
+            >
+              Reset to Baseline 5
+            </button>
+          )}
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-200 text-slate-700">
+            {results.length} Concepts
+          </span>
+        </div>
       </div>
 
       <div className="overflow-x-auto">

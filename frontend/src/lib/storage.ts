@@ -78,3 +78,16 @@ export function saveCustomDiagramToHistory(newResult: ConceptResult): ConceptRes
   }
 }
 
+/**
+ * Clears custom diagram history from localStorage and resets back to baseline 5.
+ */
+export function clearCustomDiagramHistory(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(CUSTOM_HISTORY_KEY);
+  } catch (err) {
+    console.error('Failed to clear custom diagram history from localStorage:', err);
+  }
+}
+
+
