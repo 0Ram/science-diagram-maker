@@ -1,69 +1,168 @@
-import Image from "next/image";
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { DashboardHeader } from '../components/DashboardHeader';
+import { StatsCards } from '../components/StatsCards';
+import { DiagramTable } from '../components/DiagramTable';
+import { DiagramModal } from '../components/DiagramModal';
+import { GenerateDialog } from '../components/GenerateDialog';
+import { fetchInitialDataset } from '../lib/api';
+import { loadSavedReviews, saveReviewDecision } from '../lib/storage';
+import { Dataset, ConceptResult, ReviewDecision } from '../types';
+import { Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
 
 export default function Home() {
+  const [dataset, setDataset] = useState<Dataset | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [inspectingResult, setInspectingResult] = useState<ConceptResult | null>(null);
+  const [isGenerateOpen, setIsGenerateOpen] = useState(false);
+
+  useEffect(() => {
+    async function init() {
+      try {
+        setLoading(true);
+        const data = await fetchInitialDataset();
+        const savedReviews = loadSavedReviews();
+
+        // Merge saved reviews from localStorage into the concept results
+        const mergedResults = data.results.map((r) => {
+          const saved = savedReviews[r.id];
+          if (saved) {
+            return {
+              ...r,
+              review_status: saved.decision,
+              review_note: saved.note,
+            };
+          }
+          return r;
+        });
+
+        setDataset({
+          ...data,
+          results: mergedResults,
+        });
+      } catch (err: any) {
+        console.error('Error loading dataset:', err);
+        setError(err.message || 'Failed to load science diagrams dataset');
+      } finally {
+        setLoading(false);
+      }
+    }
+    init();
+  }, []);
+
+  const handleReview = (conceptId: string, decision: ReviewDecision, note: string) => {
+    // 1. Save to localStorage
+    saveReviewDecision(conceptId, decision, note);
+
+    // 2. Update local state
+    if (dataset) {
+      setDataset({
+        ...dataset,
+        results: dataset.results.map((r) => {
+          if (r.id === conceptId) {
+            return {
+              ...r,
+              review_status: decision,
+              review_note: note,
+            };
+          }
+          return r;
+        }),
+      });
+    }
+  };
+
+  const handleLiveGenerated = (newResult: ConceptResult) => {
+    if (!dataset) return;
+
+    // Check if concept exists in table; if so update it, otherwise prepend
+    const existingIndex = dataset.results.findIndex((r) => r.id === newResult.id);
+    let updatedResults = [...dataset.results];
+
+    if (existingIndex !== -1) {
+      // Preserve existing review decision if present
+      const existing = updatedResults[existingIndex];
+      newResult.review_status = existing.review_status;
+      newResult.review_note = existing.review_note;
+      updatedResults[existingIndex] = newResult;
+    } else {
+      updatedResults.unshift(newResult);
+    }
+
+    setDataset({
+      ...dataset,
+      results: updatedResults,
+    });
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+      <DashboardHeader
+        modelName={dataset?.model || 'gemini-2.5-flash'}
+        onOpenGenerate={() => setIsGenerateOpen(true)}
+      />
+
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {loading ? (
+          <div className="py-24 flex flex-col items-center justify-center text-slate-500">
+            <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-3" />
+            <p className="text-sm font-medium">Loading Science Diagrams...</p>
+          </div>
+        ) : error ? (
+          <div className="p-6 bg-red-50 border border-red-200 rounded-xl text-red-800 max-w-2xl mx-auto my-12 text-center">
+            <AlertTriangle className="w-8 h-8 text-red-600 mx-auto mb-2" />
+            <h3 className="font-bold text-lg text-red-900">Unable to load diagrams</h3>
+            <p className="text-sm mt-1">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-semibold hover:bg-red-700 inline-flex items-center gap-1.5"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+              <RefreshCw className="w-3.5 h-3.5" />
+              Reload Page
+            </button>
+          </div>
+        ) : dataset ? (
+          <>
+            {/* Overview Metric Cards */}
+            <StatsCards results={dataset.results} />
+
+            {/* Main Interactive Diagram Review Table */}
+            <DiagramTable
+              results={dataset.results}
+              onReview={handleReview}
+              onInspect={(r) => setInspectingResult(r)}
+            />
+          </>
+        ) : null}
+      </main>
+
+      {/* Full-view Diagram Inspection Modal */}
+      <DiagramModal
+        result={inspectingResult}
+        onClose={() => setInspectingResult(null)}
+      />
+
+      {/* Live Concept Generator Dialog */}
+      <GenerateDialog
+        isOpen={isGenerateOpen}
+        onClose={() => setIsGenerateOpen(false)}
+        onSuccess={handleLiveGenerated}
+      />
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto px-4">
+          <p>
+            Built for <strong>Udhi Technologies</strong> Home Assignment: AI-Powered Science Diagram Maker.
+          </p>
+          <p className="mt-1 text-slate-400">
+            Automated 5-Stage Code Validation • Free Gemini Flash Model • Reviewer decisions persisted in localStorage
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </footer>
     </div>
   );
 }
