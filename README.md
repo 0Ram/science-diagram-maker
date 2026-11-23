@@ -19,8 +19,8 @@ At **Udhi Technologies**, animated lesson videos are produced for UK GCSE studen
 ---
 
 ## 2. Live Demo & Links
-- **Live Web Application**: Deployable directly to Vercel / Render *(see deployment section below)*
-- **GitHub Repository**: Complete source code with progressive commit history, tests, and master dataset.
+- **Live Web Application**: [https://frontend-one-sepia-61.vercel.app](https://frontend-one-sepia-61.vercel.app)
+- **GitHub Repository**: [https://github.com/0Ram/science-diagram-maker](https://github.com/0Ram/science-diagram-maker)
 - **Master Dataset**: [`backend/data/results.json`](file:///Users/mudavathrambhumeshwar/Desktop/UDHI%20TECHNOLOGIES/backend/data/results.json) synced to [`frontend/public/data/results.json`](file:///Users/mudavathrambhumeshwar/Desktop/UDHI%20TECHNOLOGIES/frontend/public/data/results.json).
 
 ---
