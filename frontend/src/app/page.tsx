@@ -8,6 +8,7 @@ import { DiagramModal } from '../components/DiagramModal';
 import { GenerateDialog } from '../components/GenerateDialog';
 import { fetchInitialDataset } from '../lib/api';
 import { loadSavedReviews, saveReviewDecision } from '../lib/storage';
+import { reverifyAndFixResult } from '../lib/svgHelper';
 import { Dataset, ConceptResult, ReviewDecision } from '../types';
 import { Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
 
@@ -27,16 +28,21 @@ export default function Home() {
         const savedReviews = loadSavedReviews();
 
         // Merge saved reviews from localStorage into the concept results
+        // and ensure verification checks reflect the latest geometric & scientific engine
         const mergedResults = data.results.map((r) => {
-          const saved = savedReviews[r.id];
+          let item = r;
+          if (item.validation_status !== 'passed') {
+            item = reverifyAndFixResult(item);
+          }
+          const saved = savedReviews[item.id];
           if (saved) {
             return {
-              ...r,
+              ...item,
               review_status: saved.decision,
               review_note: saved.note,
             };
           }
-          return r;
+          return item;
         });
 
         setDataset({
@@ -75,21 +81,42 @@ export default function Home() {
     }
   };
 
+  const handleReverify = (conceptId: string) => {
+    if (!dataset) return;
+    const updatedResults = dataset.results.map((r) => {
+      if (r.id === conceptId) {
+        return reverifyAndFixResult(r);
+      }
+      return r;
+    });
+
+    setDataset({
+      ...dataset,
+      results: updatedResults,
+    });
+  };
+
   const handleLiveGenerated = (newResult: ConceptResult) => {
     if (!dataset) return;
 
+    // Ensure generated result is passed through latest layout & verification engine
+    const verifiedResult =
+      newResult.validation_status !== 'passed'
+        ? reverifyAndFixResult(newResult)
+        : newResult;
+
     // Check if concept exists in table; if so update it, otherwise prepend
-    const existingIndex = dataset.results.findIndex((r) => r.id === newResult.id);
+    const existingIndex = dataset.results.findIndex((r) => r.id === verifiedResult.id);
     let updatedResults = [...dataset.results];
 
     if (existingIndex !== -1) {
       // Preserve existing review decision if present
       const existing = updatedResults[existingIndex];
-      newResult.review_status = existing.review_status;
-      newResult.review_note = existing.review_note;
-      updatedResults[existingIndex] = newResult;
+      verifiedResult.review_status = existing.review_status;
+      verifiedResult.review_note = existing.review_note;
+      updatedResults[existingIndex] = verifiedResult;
     } else {
-      updatedResults.unshift(newResult);
+      updatedResults.unshift(verifiedResult);
     }
 
     setDataset({
@@ -134,6 +161,7 @@ export default function Home() {
               results={dataset.results}
               onReview={handleReview}
               onInspect={(r) => setInspectingResult(r)}
+              onReverify={handleReverify}
             />
           </>
         ) : null}

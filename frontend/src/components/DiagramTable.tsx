@@ -1,16 +1,18 @@
 import React from 'react';
-import { ThumbsUp, ThumbsDown, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Clock, CheckCircle2, XCircle, Download, RefreshCw } from 'lucide-react';
 import { ConceptResult, ReviewDecision } from '../types';
 import { DiagramPreview } from './DiagramPreview';
 import { ValidationBadges } from './ValidationBadges';
+import { downloadAnimatedSvg } from '../lib/svgHelper';
 
 interface Props {
   results: ConceptResult[];
   onReview: (conceptId: string, decision: ReviewDecision, note: string) => void;
   onInspect: (result: ConceptResult) => void;
+  onReverify?: (conceptId: string) => void;
 }
 
-export const DiagramTable: React.FC<Props> = ({ results, onReview, onInspect }) => {
+export const DiagramTable: React.FC<Props> = ({ results, onReview, onInspect, onReverify }) => {
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
@@ -70,7 +72,7 @@ export const DiagramTable: React.FC<Props> = ({ results, onReview, onInspect }) 
                     </span>
                     <h3 className="font-bold text-slate-900 text-base">{r.concept}</h3>
                     <p className="text-xs text-slate-500 mt-0.5">ID: {r.id}</p>
-                    <div className="mt-2 text-xs">
+                    <div className="mt-2 text-xs flex flex-col items-start gap-1.5">
                       <span
                         className={`inline-flex items-center gap-1 font-medium ${
                           r.validation_status === 'passed' ? 'text-emerald-600' : 'text-red-600'
@@ -83,6 +85,18 @@ export const DiagramTable: React.FC<Props> = ({ results, onReview, onInspect }) 
                         )}
                         Verification: {r.validation_status.toUpperCase()}
                       </span>
+
+                      {r.validation_status !== 'passed' && (
+                        <button
+                          type="button"
+                          onClick={() => onReverify?.(r.id)}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition-colors cursor-pointer"
+                          title="Re-run verification with updated geometric and scientific engine"
+                        >
+                          <RefreshCw className="w-3 h-3" />
+                          Re-verify & Fix
+                        </button>
+                      )}
                     </div>
                   </td>
 
@@ -93,6 +107,17 @@ export const DiagramTable: React.FC<Props> = ({ results, onReview, onInspect }) 
                       title={r.concept}
                       onExpand={() => onInspect(r)}
                     />
+                    <div className="mt-2">
+                      <button
+                        type="button"
+                        onClick={() => downloadAnimatedSvg(r.svg, r.concept)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 text-xs font-medium border border-slate-200 hover:border-indigo-300 transition-colors cursor-pointer"
+                        title="Download standalone animated SVG (preserves all CSS and SMIL animations)"
+                      >
+                        <Download className="w-3.5 h-3.5 text-indigo-600" />
+                        Download Animated SVG
+                      </button>
+                    </div>
                   </td>
 
                   {/* Column 3: Automated Checks */}

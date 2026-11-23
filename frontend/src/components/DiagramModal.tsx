@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Copy, Check, Code, Eye } from 'lucide-react';
+import { X, Copy, Check, Code, Eye, Download } from 'lucide-react';
 import { ConceptResult } from '../types';
 import { ValidationBadges } from './ValidationBadges';
+import { downloadAnimatedSvg } from '../lib/svgHelper';
 
 interface Props {
   result: ConceptResult | null;
@@ -58,6 +59,15 @@ export const DiagramModal: React.FC<Props> = ({ result, onClose }) => {
                 SVG Source
               </button>
             </div>
+
+            <button
+              onClick={() => downloadAnimatedSvg(result.svg, result.concept)}
+              className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+              title="Download standalone animated SVG (preserves all CSS and SMIL animations)"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Download Animated SVG
+            </button>
 
             <button
               onClick={handleCopy}
