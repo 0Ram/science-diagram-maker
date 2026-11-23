@@ -136,10 +136,14 @@ STRICT TECHNICAL & GEOMETRIC RULES:
    - Must include a <title>{concept['title']}</title> tag as the first child of <svg>.
    - Must include at least 4 visible, legible <text> elements with clean font-family="system-ui, -apple-system, sans-serif" and font-size between 13px and 22px.
    - Text contrast: Use dark text (#0f172a) on light backgrounds, or white text on dark shapes.
-5. Animation:
+5. Typography & Anti-Collision:
+   - NEVER place two <text> elements with identical or colliding Y coordinates.
+   - Maintain at least 24px vertical separation between distinct text labels.
+   - For text inside cards/boxes, ensure rect height >= 60px and width >= 240px for clean padding.
+6. Animation:
    - Must include at least one continuous, smooth animation using CSS @keyframes inside a <style> block OR SMIL (<animate>, <animateTransform>).
    - Animations must be educational (e.g. demonstrating flow, vibration, or rays), not distracting.
-6. Scientific Authenticity: The diagram must look like a high-end UK GCSE textbook illustration with clean lines, modern rounded corners, and clear scientific meaning.
+7. Scientific Authenticity: The diagram must look like a high-end UK GCSE textbook illustration with clean lines, modern rounded corners, and clear scientific meaning.
 {correction_section}
 Remember: Output ONLY the SVG XML starting with <svg> and ending with </svg>.
 """

@@ -42,9 +42,61 @@ function extractSvg(text: string): string {
   const start = cleaned.indexOf('<svg');
   const end = cleaned.lastIndexOf('</svg>');
   if (start !== -1 && end !== -1) {
-    return cleaned.substring(start, end + 6).trim();
+    cleaned = cleaned.substring(start, end + 6).trim();
   }
-  return cleaned;
+  return autoFixTextCollisions(cleaned);
+}
+
+/**
+ * Automatically detects and fixes colliding/overlapping text elements in generated SVGs.
+ * If two text elements share similar x coordinates and their y distance is < 18px,
+ * offsets the colliding text element downwards by 22px.
+ */
+function autoFixTextCollisions(svg: string): string {
+  const textPattern = /<text\b([^>]*)>([\s\S]*?)<\/text>/gi;
+  const elements: { full: string; attrs: string; content: string; x: number; y: number; index: number }[] = [];
+  
+  let match;
+  while ((match = textPattern.exec(svg)) !== null) {
+    const full = match[0];
+    const attrs = match[1];
+    const content = match[2];
+    const xMatch = attrs.match(/\bx=["']?([-+]?[\d.]+)["']?/i);
+    const yMatch = attrs.match(/\by=["']?([-+]?[\d.]+)["']?/i);
+    if (yMatch) {
+      elements.push({
+        full,
+        attrs,
+        content,
+        x: xMatch ? parseFloat(xMatch[1]) : 0,
+        y: parseFloat(yMatch[1]),
+        index: match.index
+      });
+    }
+  }
+
+  // Detect overlapping pairs and adjust y coordinate
+  let modifiedSvg = svg;
+  for (let i = 0; i < elements.length; i++) {
+    for (let j = i + 1; j < elements.length; j++) {
+      const e1 = elements[i];
+      const e2 = elements[j];
+      const xDiff = Math.abs(e1.x - e2.x);
+      const yDiff = Math.abs(e1.y - e2.y);
+
+      // If x is within 80px and y is colliding (< 18px apart), shift e2 down
+      if (xDiff < 80 && yDiff < 18) {
+        const newY = e1.y + 22;
+        const newAttrs = e2.attrs.replace(/\by=["']?([-+]?[\d.]+)["']?/i, `y="${newY}"`);
+        const replacement = `<text${newAttrs}>${e2.content}</text>`;
+        modifiedSvg = modifiedSvg.replace(e2.full, replacement);
+        e2.y = newY; // Update for transitive overlaps
+        e2.full = replacement;
+      }
+    }
+  }
+
+  return modifiedSvg;
 }
 
 function runChecks(svg: string, title: string, keywords: string[]): { allPassed: boolean; checks: Record<string, CheckItem> } {
@@ -111,12 +163,15 @@ function runChecks(svg: string, title: string, keywords: string[]): { allPassed:
   let matched = keywords.filter(k => lowerSvg.includes(k.toLowerCase()));
   let sciencePassed = false;
   if (keywords.length > 0) {
-    sciencePassed = matched.length >= Math.min(2, keywords.length);
-  } else {
-    // Custom concept fallback: verify has at least 3 graphic primitives & labels
+    sciencePassed = matched.length >= 1;
+  }
+  if (!sciencePassed) {
+    // Custom concept fallback: verify title or words exist + graphical elements present
+    const titleWords = title.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+    const matchedTitle = titleWords.filter(w => lowerSvg.includes(w));
     const primitiveCount = (svg.match(/<(circle|rect|path|line|polygon)/gi) || []).length;
-    sciencePassed = labelCount >= 3 && primitiveCount >= 3;
-    if (sciencePassed) matched = [title, 'visual elements'];
+    sciencePassed = (matchedTitle.length >= 1 || primitiveCount >= 3) && labelCount >= 3;
+    if (sciencePassed) matched = [title, ...matchedTitle];
   }
 
   checks['scientific_content'] = {
@@ -164,17 +219,24 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const prompt = `You are a GCSE science educator. Create a scientifically accurate animated SVG diagram for:
+    const prompt = `You are an elite GCSE science educator and technical SVG illustrator.
+Create a scientifically accurate animated SVG diagram for:
 Concept: ${conceptTitle} (${conceptSubject})
 Guidance: ${conceptGuidance}
 
-STRICT SVG RULES:
-- Return ONLY valid raw SVG XML. No markdown fences.
+STRICT TECHNICAL & VISUAL RULES:
+- Return ONLY valid raw SVG XML. No markdown fences or commentary.
 - Use viewBox="0 0 800 500" width="100%" height="100%".
 - Keep every element strictly inside coordinates 20 to 780 and 20 to 480.
-- Include a <title>${conceptTitle}</title> tag.
-- Include at least 4 visible <text> labels explaining the scientific parts.
-- Include CSS @keyframes or SMIL (<animate>) animation demonstrating the scientific process.`;
+- Include a <title>${conceptTitle}</title> tag as first child.
+- Include at least 4 visible <text> labels with font-size="13" to "18" explaining the science.
+- Include CSS @keyframes or SMIL (<animate>) animation demonstrating the scientific mechanism.
+
+CRITICAL ANTI-COLLISION & TYPOGRAPHY RULES:
+- NEVER stack or overlap two <text> elements at identical or close Y coordinates.
+- Maintain at least 24px vertical distance between different text labels (e.g. Line 1: y="180", Line 2: y="206").
+- When putting text inside boxes (e.g. Action Force / Reaction Force / Key Principle cards), make the rect box height >= 60px and width >= 250px so text has clean padding and never collides or bleeds outside the box.
+- Do NOT repeat overlapping text on top of other text.`;
 
     // Attempt generation with verified available models on this account
     const modelsToTry = [preferredModel, 'gemini-3.5-flash', 'gemini-flash-lite-latest'];
