@@ -18,7 +18,7 @@ load_dotenv()
 
 def get_configured_model() -> str:
     """Returns the verified model identifier from environment or default."""
-    return os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    return os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
 
 
 def get_genai_client() -> genai.Client:
