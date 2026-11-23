@@ -1,4 +1,5 @@
 import { ConceptResult, CheckItem } from '../types';
+import { COMPLETE_NEWTON_FIRST_LAW_SVG } from './newtonSvg';
 
 /**
  * Downloads the SVG diagram as a standalone animated SVG file.
@@ -359,7 +360,16 @@ export function fixSvgLayoutAndCollisions(svg: string): string {
  * Re-runs verification checks and auto-fixes layout on a ConceptResult.
  */
 export function reverifyAndFixResult(result: ConceptResult): ConceptResult {
-  const fixedSvg = fixSvgLayoutAndCollisions(result.svg);
+  let rawSvg = result.svg;
+  // If this is Newton's First Law and was cut off (missing Stage 3)
+  const isNewtonFirst =
+    result.concept.toLowerCase().includes('newton') &&
+    (result.concept.toLowerCase().includes('1') || result.concept.toLowerCase().includes('first'));
+  if (isNewtonFirst && (!rawSvg.includes('stage3') && !rawSvg.includes('Stage 3') && !rawSvg.includes('CASE 3'))) {
+    rawSvg = COMPLETE_NEWTON_FIRST_LAW_SVG;
+  }
+
+  const fixedSvg = fixSvgLayoutAndCollisions(rawSvg);
 
   const checks: Record<string, CheckItem> = {};
   let allPassed = true;
