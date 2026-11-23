@@ -30,6 +30,136 @@ export function downloadAnimatedSvg(svgContent: string, title: string) {
 }
 
 /**
+ * Records the animated SVG into a high-quality video (WebM/MP4) file
+ * and downloads it automatically to the user's computer.
+ */
+export async function downloadAnimationVideo(
+  svgContent: string,
+  title: string,
+  onProgress?: (progress: number) => void
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    try {
+      if (typeof window === 'undefined') return resolve();
+
+      let cleanSvg = svgContent.trim();
+      if (!cleanSvg.includes('xmlns=')) {
+        cleanSvg = cleanSvg.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"');
+      } else if (!cleanSvg.includes('xmlns:xlink=')) {
+        cleanSvg = cleanSvg.replace('<svg', '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+      }
+
+      const svgBlob = new Blob([cleanSvg], { type: 'image/svg+xml;charset=utf-8' });
+      const svgUrl = URL.createObjectURL(svgBlob);
+
+      // Attach offscreen image so browser runs CSS animation timeline
+      const img = document.createElement('img');
+      img.style.position = 'fixed';
+      img.style.left = '-9999px';
+      img.style.top = '-9999px';
+      img.style.width = '800px';
+      img.style.height = '500px';
+      img.crossOrigin = 'anonymous';
+      img.src = svgUrl;
+      document.body.appendChild(img);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 800;
+      canvas.height = 500;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        document.body.removeChild(img);
+        URL.revokeObjectURL(svgUrl);
+        throw new Error('Canvas not available');
+      }
+
+      img.onload = () => {
+        try {
+          const stream = canvas.captureStream(30);
+
+          let selectedMime = 'video/webm;codecs=vp9';
+          if (!MediaRecorder.isTypeSupported(selectedMime)) {
+            selectedMime = 'video/webm;codecs=vp8';
+          }
+          if (!MediaRecorder.isTypeSupported(selectedMime)) {
+            selectedMime = 'video/webm';
+          }
+          if (!MediaRecorder.isTypeSupported(selectedMime)) {
+            selectedMime = 'video/mp4';
+          }
+
+          const recorder = new MediaRecorder(stream, {
+            mimeType: selectedMime,
+            videoBitsPerSecond: 3000000
+          });
+
+          const chunks: Blob[] = [];
+          recorder.ondataavailable = (e) => {
+            if (e.data && e.data.size > 0) chunks.push(e.data);
+          };
+
+          recorder.onstop = () => {
+            const ext = selectedMime.includes('mp4') ? 'mp4' : 'webm';
+            const videoBlob = new Blob(chunks, { type: selectedMime });
+            const videoUrl = URL.createObjectURL(videoBlob);
+            const a = document.createElement('a');
+            a.href = videoUrl;
+            const safeName = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'science-diagram'}-animation.${ext}`;
+            a.download = safeName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            if (document.body.contains(img)) document.body.removeChild(img);
+            URL.revokeObjectURL(videoUrl);
+            URL.revokeObjectURL(svgUrl);
+            resolve();
+          };
+
+          recorder.start(100);
+
+          const durationMs = 4500; // Record 4.5 seconds of animation
+          const startTime = performance.now();
+
+          const renderFrame = (now: number) => {
+            const elapsed = now - startTime;
+            const progress = Math.min(100, Math.round((elapsed / durationMs) * 100));
+            if (onProgress) onProgress(progress);
+
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(0, 0, 800, 500);
+            try {
+              ctx.drawImage(img, 0, 0, 800, 500);
+            } catch (drawErr) {
+              // ignore cross-origin error if any
+            }
+
+            if (elapsed < durationMs) {
+              requestAnimationFrame(renderFrame);
+            } else {
+              recorder.stop();
+            }
+          };
+
+          requestAnimationFrame(renderFrame);
+        } catch (recErr) {
+          if (document.body.contains(img)) document.body.removeChild(img);
+          URL.revokeObjectURL(svgUrl);
+          reject(recErr);
+        }
+      };
+
+      img.onerror = () => {
+        if (document.body.contains(img)) document.body.removeChild(img);
+        URL.revokeObjectURL(svgUrl);
+        reject(new Error('Failed to load SVG for video conversion'));
+      };
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+/**
  * Clamps coordinates to keep shapes strictly within [15, 785]x[15, 485]
  * and applies spatial collision spacing to text elements.
  */

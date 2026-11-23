@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { X, Copy, Check, Code, Eye, Download } from 'lucide-react';
+import { X, Copy, Check, Code, Eye, Download, Video, Loader2 } from 'lucide-react';
 import { ConceptResult } from '../types';
 import { ValidationBadges } from './ValidationBadges';
-import { downloadAnimatedSvg } from '../lib/svgHelper';
+import { downloadAnimatedSvg, downloadAnimationVideo } from '../lib/svgHelper';
 
 interface Props {
   result: ConceptResult | null;
@@ -12,6 +12,8 @@ interface Props {
 export const DiagramModal: React.FC<Props> = ({ result, onClose }) => {
   const [copied, setCopied] = useState(false);
   const [tab, setTab] = useState<'preview' | 'code'>('preview');
+  const [isRecording, setIsRecording] = useState(false);
+  const [videoProgress, setVideoProgress] = useState(0);
 
   if (!result) return null;
 
@@ -19,6 +21,19 @@ export const DiagramModal: React.FC<Props> = ({ result, onClose }) => {
     navigator.clipboard.writeText(result.svg);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownloadVideo = async () => {
+    try {
+      setIsRecording(true);
+      setVideoProgress(0);
+      await downloadAnimationVideo(result.svg, result.concept, (p) => setVideoProgress(p));
+    } catch (err) {
+      console.error('Video recording failed:', err);
+      alert('Unable to capture video in this browser. Please use the Download Animated SVG option.');
+    } finally {
+      setIsRecording(false);
+    }
   };
 
   return (
@@ -63,10 +78,33 @@ export const DiagramModal: React.FC<Props> = ({ result, onClose }) => {
             <button
               onClick={() => downloadAnimatedSvg(result.svg, result.concept)}
               className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-              title="Download standalone animated SVG (preserves all CSS and SMIL animations)"
+              title="Download standalone animated vector SVG"
             >
               <Download className="w-3.5 h-3.5" />
-              Download Animated SVG
+              Download SVG
+            </button>
+
+            <button
+              disabled={isRecording}
+              onClick={handleDownloadVideo}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer ${
+                isRecording
+                  ? 'bg-amber-500 text-white animate-pulse'
+                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+              }`}
+              title="Record and download the animation as a video (WebM/MP4)"
+            >
+              {isRecording ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Recording Video ({videoProgress}%)...
+                </>
+              ) : (
+                <>
+                  <Video className="w-3.5 h-3.5" />
+                  Download Video (WebM)
+                </>
+              )}
             </button>
 
             <button
