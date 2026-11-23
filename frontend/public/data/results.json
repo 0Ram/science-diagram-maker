@@ -1,0 +1,383 @@
+{
+  "generated_at": "2026-11-23T16:22:57.300992+00:00",
+  "model": "gemini-2.5-flash",
+  "pricing_assumptions": {
+    "input_price_per_million": 0.075,
+    "output_price_per_million": 0.3
+  },
+  "total_metrics": {
+    "total_diagrams": 5,
+    "passed": 5,
+    "failed": 0,
+    "total_tokens": 8262,
+    "total_estimated_cost_usd": 0.001948,
+    "actual_cost_usd": 0.0
+  },
+  "results": [
+    {
+      "id": "pythagoras",
+      "concept": "Pythagoras' theorem",
+      "subject": "Maths",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 500\" width=\"100%\" height=\"100%\">\n  <title>Pythagoras' Theorem</title>\n  <defs>\n    <style>\n      .bg { fill: #f8fafc; }\n      .triangle { fill: #e0f2fe; stroke: #0284c7; stroke-width: 3; stroke-linejoin: round; }\n      .square-a { fill: rgba(239, 68, 68, 0.15); stroke: #ef4444; stroke-width: 2; stroke-dasharray: 4; }\n      .square-b { fill: rgba(16, 185, 129, 0.15); stroke: #10b981; stroke-width: 2; stroke-dasharray: 4; }\n      .square-c { fill: rgba(99, 102, 241, 0.18); stroke: #6366f1; stroke-width: 2; }\n      .right-angle { fill: none; stroke: #0284c7; stroke-width: 2; }\n      .title-text { font-family: system-ui, sans-serif; font-size: 20px; font-weight: 700; fill: #0f172a; }\n      .label-text { font-family: system-ui, sans-serif; font-size: 15px; font-weight: 600; fill: #1e293b; }\n      .formula-box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 8; }\n      .formula-text { font-family: system-ui, sans-serif; font-size: 18px; font-weight: 700; fill: #4338ca; }\n      @keyframes pulseArea {\n        0%, 100% { fill-opacity: 0.15; }\n        50% { fill-opacity: 0.35; }\n      }\n      .anim-c { animation: pulseArea 3s infinite ease-in-out; }\n    </style>\n  </defs>\n  <rect width=\"800\" height=\"500\" class=\"bg\"/>\n  <text x=\"40\" y=\"45\" class=\"title-text\">Pythagoras' Theorem: a² + b² = c²</text>\n  \n  <!-- Square on side a (vertical, width=120, height=120) -->\n  <rect x=\"180\" y=\"160\" width=\"120\" height=\"120\" class=\"square-a\"/>\n  <text x=\"215\" y=\"225\" class=\"label-text\" fill=\"#b91c1c\">Area a²</text>\n  \n  <!-- Square on side b (horizontal, width=160, height=160) -->\n  <rect x=\"300\" y=\"280\" width=\"160\" height=\"160\" class=\"square-b\"/>\n  <text x=\"355\" y=\"365\" class=\"label-text\" fill=\"#047857\">Area b²</text>\n  \n  <!-- Right-Angled Triangle (sides: a=120, b=160, c=200) -->\n  <polygon points=\"300,160 300,280 460,280\" class=\"triangle\"/>\n  \n  <!-- Right Angle Symbol -->\n  <polyline points=\"300,265 315,265 315,280\" class=\"right-angle\"/>\n  \n  <!-- Side Labels -->\n  <text x=\"250\" y=\"225\" class=\"label-text\">Side a (3)</text>\n  <text x=\"365\" y=\"305\" class=\"label-text\">Side b (4)</text>\n  <text x=\"395\" y=\"210\" class=\"label-text\" fill=\"#4338ca\">Hypotenuse c (5)</text>\n  \n  <!-- Hypotenuse square overlay indicator -->\n  <polygon points=\"300,160 460,280 580,120 420,0\" class=\"square-c anim-c\"/>\n  <text x=\"430\" y=\"145\" class=\"label-text\" fill=\"#4338ca\">Area c² = a² + b²</text>\n  \n  <!-- Formula Card -->\n  <rect x=\"520\" y=\"390\" width=\"240\" height=\"70\" class=\"formula-box\"/>\n  <text x=\"545\" y=\"420\" class=\"formula-text\">a² + b² = c²</text>\n  <text x=\"545\" y=\"445\" class=\"label-text\">9 + 16 = 25</text>\n</svg>",
+      "model": "gemini-2.5-flash",
+      "usage": {
+        "input_tokens": 482,
+        "output_tokens": 1120,
+        "total_tokens": 1602,
+        "estimated_cost_usd": 0.000372,
+        "actual_cost_usd": 0.0,
+        "pricing_tier": "free_tier_equivalent"
+      },
+      "retries": {
+        "validation": 0,
+        "api": 0,
+        "total_attempts": 1
+      },
+      "checks": {
+        "valid_svg": {
+          "passed": true,
+          "message": "Valid SVG XML and root structure",
+          "details": {
+            "viewBox": "0.0 0.0 800.0 500.0"
+          }
+        },
+        "viewbox_bounds": {
+          "passed": true,
+          "message": "All 16 graphical elements are within viewBox bounds (0 0 800 500)",
+          "details": {
+            "checked_elements": 16
+          }
+        },
+        "title_and_labels": {
+          "passed": true,
+          "message": "Title ('Pythagoras' Theorem') and 9 visible text labels found",
+          "details": {
+            "title": "Pythagoras' Theorem",
+            "label_count": 9,
+            "sample_labels": [
+              "Pythagoras' Theorem: a² + b² = c²",
+              "Area a²",
+              "Area b²",
+              "Side a (3)",
+              "Side b (4)"
+            ]
+          }
+        },
+        "animation": {
+          "passed": true,
+          "message": "Active animation detected (CSS @keyframes)",
+          "details": {
+            "animation_type": "CSS @keyframes"
+          }
+        },
+        "scientific_content": {
+          "passed": true,
+          "message": "Valid GCSE Pythagoras: triangle, hypotenuse, and a² + b² = c² verified",
+          "details": {
+            "triangle": true,
+            "hypotenuse": true,
+            "formula": true
+          }
+        }
+      },
+      "generation_status": "completed",
+      "validation_status": "passed",
+      "review_status": "pending",
+      "review_note": "",
+      "error": null
+    },
+    {
+      "id": "circle",
+      "concept": "Parts of a circle",
+      "subject": "Maths",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 500\" width=\"100%\" height=\"100%\">\n  <title>Parts of a Circle</title>\n  <defs>\n    <style>\n      .bg { fill: #f8fafc; }\n      .main-circle { fill: #f0fdf4; stroke: #16a34a; stroke-width: 3; }\n      .centre-dot { fill: #dc2626; }\n      .radius-line { stroke: #2563eb; stroke-width: 3; stroke-linecap: round; }\n      .diameter-line { stroke: #9333ea; stroke-width: 2.5; stroke-dasharray: 6 4; }\n      .circumference-ring { fill: none; stroke: #f59e0b; stroke-width: 4; stroke-dasharray: 20 10; }\n      .title-text { font-family: system-ui, sans-serif; font-size: 20px; font-weight: 700; fill: #0f172a; }\n      .label-text { font-family: system-ui, sans-serif; font-size: 15px; font-weight: 600; fill: #1e293b; }\n      .legend-box { fill: #ffffff; stroke: #e2e8f0; stroke-width: 2; rx: 8; }\n      @keyframes spinCircumference {\n        from { stroke-dashoffset: 0; }\n        to { stroke-dashoffset: 360; }\n      }\n      .anim-circ { animation: spinCircumference 12s linear infinite; }\n    </style>\n  </defs>\n  <rect width=\"800\" height=\"500\" class=\"bg\"/>\n  <text x=\"40\" y=\"45\" class=\"title-text\">GCSE Maths: Parts of a Circle</text>\n  \n  <!-- Outer Animated Circumference Tracing Ring -->\n  <circle cx=\"360\" cy=\"260\" r=\"140\" class=\"circumference-ring anim-circ\"/>\n  \n  <!-- Main Circle (Centre at 360, 260; Radius 140) -->\n  <circle cx=\"360\" cy=\"260\" r=\"140\" class=\"main-circle\"/>\n  \n  <!-- Diameter line (from edge to edge through centre: x=220 to x=500 at y=260) -->\n  <line x1=\"220\" y1=\"260\" x2=\"500\" y2=\"260\" class=\"diameter-line\"/>\n  \n  <!-- Radius line (from centre 360,260 up-right to 459,161) -->\n  <line x1=\"360\" y1=\"260\" x2=\"459\" y2=\"161\" class=\"radius-line\"/>\n  \n  <!-- Centre Point -->\n  <circle cx=\"360\" cy=\"260\" r=\"6\" class=\"centre-dot\"/>\n  <text x=\"345\" y=\"285\" class=\"label-text\" fill=\"#dc2626\">Centre (O)</text>\n  \n  <!-- In-Diagram Labels -->\n  <text x=\"415\" y=\"200\" class=\"label-text\" fill=\"#2563eb\">Radius (r)</text>\n  <text x=\"240\" y=\"245\" class=\"label-text\" fill=\"#9333ea\">Diameter (d = 2r)</text>\n  <text x=\"330\" y=\"425\" class=\"label-text\" fill=\"#b45309\">Circumference (C = 2πr)</text>\n  \n  <!-- Legend Card -->\n  <rect x=\"540\" y=\"110\" width=\"220\" height=\"250\" class=\"legend-box\"/>\n  <text x=\"560\" y=\"145\" class=\"label-text\" font-size=\"16\" fill=\"#0f172a\">Key Definitions</text>\n  <text x=\"560\" y=\"180\" class=\"label-text\" fill=\"#dc2626\">• Centre: Middle point</text>\n  <text x=\"560\" y=\"220\" class=\"label-text\" fill=\"#2563eb\">• Radius: Centre to edge</text>\n  <text x=\"560\" y=\"260\" class=\"label-text\" fill=\"#9333ea\">• Diameter: Twice radius</text>\n  <text x=\"560\" y=\"300\" class=\"label-text\" fill=\"#b45309\">• Circumference: Distance</text>\n  <text x=\"575\" y=\"325\" class=\"label-text\" fill=\"#b45309\">  around the circle</text>\n</svg>",
+      "model": "gemini-2.5-flash",
+      "usage": {
+        "input_tokens": 450,
+        "output_tokens": 1050,
+        "total_tokens": 1500,
+        "estimated_cost_usd": 0.000349,
+        "actual_cost_usd": 0.0,
+        "pricing_tier": "free_tier_equivalent"
+      },
+      "retries": {
+        "validation": 0,
+        "api": 0,
+        "total_attempts": 1
+      },
+      "checks": {
+        "valid_svg": {
+          "passed": true,
+          "message": "Valid SVG XML and root structure",
+          "details": {
+            "viewBox": "0.0 0.0 800.0 500.0"
+          }
+        },
+        "viewbox_bounds": {
+          "passed": true,
+          "message": "All 18 graphical elements are within viewBox bounds (0 0 800 500)",
+          "details": {
+            "checked_elements": 18
+          }
+        },
+        "title_and_labels": {
+          "passed": true,
+          "message": "Title ('Parts of a Circle') and 11 visible text labels found",
+          "details": {
+            "title": "Parts of a Circle",
+            "label_count": 11,
+            "sample_labels": [
+              "GCSE Maths: Parts of a Circle",
+              "Centre (O)",
+              "Radius (r)",
+              "Diameter (d = 2r)",
+              "Circumference (C = 2πr)"
+            ]
+          }
+        },
+        "animation": {
+          "passed": true,
+          "message": "Active animation detected (CSS @keyframes)",
+          "details": {
+            "animation_type": "CSS @keyframes"
+          }
+        },
+        "scientific_content": {
+          "passed": true,
+          "message": "Valid GCSE Circle: <circle> shape and labels (centre, radius, diameter, circumference) verified",
+          "details": {
+            "matched_terms": [
+              "centre",
+              "radius",
+              "diameter",
+              "circumference"
+            ],
+            "circle_element": true
+          }
+        }
+      },
+      "generation_status": "completed",
+      "validation_status": "passed",
+      "review_status": "pending",
+      "review_note": "",
+      "error": null
+    },
+    {
+      "id": "circuit",
+      "concept": "Series circuit",
+      "subject": "Physics",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 500\" width=\"100%\" height=\"100%\">\n  <title>Series Circuit</title>\n  <defs>\n    <style>\n      .bg { fill: #f8fafc; }\n      .wire { fill: none; stroke: #334155; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }\n      .cell-plate-long { stroke: #dc2626; stroke-width: 4; }\n      .cell-plate-short { stroke: #1e293b; stroke-width: 7; }\n      .lamp-circle { fill: #fef08a; stroke: #eab308; stroke-width: 3; }\n      .lamp-cross { stroke: #ca8a04; stroke-width: 2.5; }\n      .title-text { font-family: system-ui, sans-serif; font-size: 20px; font-weight: 700; fill: #0f172a; }\n      .label-text { font-family: system-ui, sans-serif; font-size: 15px; font-weight: 600; fill: #1e293b; }\n      .electron { fill: #3b82f6; stroke: #1d4ed8; stroke-width: 1; }\n      @keyframes electronFlow {\n        0% { stroke-dashoffset: 0; }\n        100% { stroke-dashoffset: -400; }\n      }\n      .current-flow {\n        fill: none; stroke: #3b82f6; stroke-width: 3;\n        stroke-dasharray: 8 16;\n        animation: electronFlow 4s linear infinite;\n      }\n    </style>\n  </defs>\n  <rect width=\"800\" height=\"500\" class=\"bg\"/>\n  <text x=\"40\" y=\"45\" class=\"title-text\">GCSE Physics: Series Circuit</text>\n  \n  <!-- Rectangular Wire Loop: from (150, 110) to (650, 400) -->\n  <path d=\"M 150,110 L 370,110 M 430,110 L 650,110 L 650,220 M 650,280 L 650,400 L 430,400 M 370,400 L 150,400 Z\" class=\"wire\"/>\n  \n  <!-- Animated Current Dots Path -->\n  <rect x=\"150\" y=\"110\" width=\"500\" height=\"290\" rx=\"10\" class=\"current-flow\"/>\n  \n  <!-- Cell / Battery Symbol at top (x=370 to 430, y=110) -->\n  <line x1=\"385\" y1=\"85\" x2=\"385\" y2=\"135\" class=\"cell-plate-long\"/>\n  <line x1=\"415\" y1=\"95\" x2=\"415\" y2=\"125\" class=\"cell-plate-short\"/>\n  <text x=\"375\" y=\"75\" class=\"label-text\" fill=\"#dc2626\">+</text>\n  <text x=\"415\" y=\"75\" class=\"label-text\" fill=\"#1e293b\">-</text>\n  <text x=\"355\" y=\"65\" class=\"label-text\">Cell (V = 12V)</text>\n  \n  <!-- Component 1: Lamp 1 on right wire (x=650, y=250) -->\n  <circle cx=\"650\" cy=\"250\" r=\"25\" class=\"lamp-circle\"/>\n  <line x1=\"632\" y1=\"232\" x2=\"668\" y2=\"268\" class=\"lamp-cross\"/>\n  <line x1=\"668\" y1=\"232\" x2=\"632\" y2=\"268\" class=\"lamp-cross\"/>\n  <text x=\"540\" y=\"255\" class=\"label-text\">Lamp 1 (V₁ = 6V)</text>\n  \n  <!-- Component 2: Lamp 2 on bottom wire (x=400, y=400) -->\n  <circle cx=\"400\" cy=\"400\" r=\"25\" class=\"lamp-circle\"/>\n  <line x1=\"382\" y1=\"382\" x2=\"418\" y2=\"418\" class=\"lamp-cross\"/>\n  <line x1=\"418\" y1=\"382\" x2=\"382\" y2=\"418\" class=\"lamp-cross\"/>\n  <text x=\"330\" y=\"455\" class=\"label-text\">Lamp 2 (V₂ = 6V)</text>\n  \n  <!-- Circuit Properties Card -->\n  <rect x=\"180\" y=\"190\" width=\"280\" height=\"130\" fill=\"#ffffff\" stroke=\"#cbd5e1\" stroke-width=\"2\" rx=\"8\"/>\n  <text x=\"200\" y=\"225\" class=\"label-text\" fill=\"#2563eb\">• Single loop: one closed path</text>\n  <text x=\"200\" y=\"255\" class=\"label-text\" fill=\"#047857\">• Current (I) is same everywhere</text>\n  <text x=\"200\" y=\"285\" class=\"label-text\" fill=\"#9333ea\">• Voltage shared: V = V₁ + V₂</text>\n</svg>",
+      "model": "gemini-2.5-flash",
+      "usage": {
+        "input_tokens": 465,
+        "output_tokens": 1180,
+        "total_tokens": 1645,
+        "estimated_cost_usd": 0.000389,
+        "actual_cost_usd": 0.0,
+        "pricing_tier": "free_tier_equivalent"
+      },
+      "retries": {
+        "validation": 0,
+        "api": 0,
+        "total_attempts": 1
+      },
+      "checks": {
+        "valid_svg": {
+          "passed": true,
+          "message": "Valid SVG XML and root structure",
+          "details": {
+            "viewBox": "0.0 0.0 800.0 500.0"
+          }
+        },
+        "viewbox_bounds": {
+          "passed": true,
+          "message": "All 21 graphical elements are within viewBox bounds (0 0 800 500)",
+          "details": {
+            "checked_elements": 21
+          }
+        },
+        "title_and_labels": {
+          "passed": true,
+          "message": "Title ('Series Circuit') and 9 visible text labels found",
+          "details": {
+            "title": "Series Circuit",
+            "label_count": 9,
+            "sample_labels": [
+              "GCSE Physics: Series Circuit",
+              "+",
+              "-",
+              "Cell (V = 12V)",
+              "Lamp 1 (V₁ = 6V)"
+            ]
+          }
+        },
+        "animation": {
+          "passed": true,
+          "message": "Active animation detected (CSS @keyframes)",
+          "details": {
+            "animation_type": "CSS @keyframes"
+          }
+        },
+        "scientific_content": {
+          "passed": true,
+          "message": "Valid GCSE Series Circuit: single loop with cell, components, and current indicators verified",
+          "details": {
+            "cell": true,
+            "loop": true,
+            "flow_indicator": true
+          }
+        }
+      },
+      "generation_status": "completed",
+      "validation_status": "passed",
+      "review_status": "pending",
+      "review_note": "",
+      "error": null
+    },
+    {
+      "id": "photosynthesis",
+      "concept": "Photosynthesis",
+      "subject": "Biology",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 500\" width=\"100%\" height=\"100%\">\n  <title>Photosynthesis Diagram</title>\n  <defs>\n    <style>\n      .bg { fill: #f8fafc; }\n      .sun { fill: #facc15; stroke: #eab308; stroke-width: 3; }\n      .sun-ray { stroke: #f59e0b; stroke-width: 2.5; stroke-dasharray: 4 4; }\n      .leaf { fill: #22c55e; stroke: #15803d; stroke-width: 4; }\n      .leaf-vein { stroke: #166534; stroke-width: 2; fill: none; }\n      .input-box { fill: #eff6ff; stroke: #3b82f6; stroke-width: 2; rx: 6; }\n      .output-box { fill: #f0fdf4; stroke: #10b981; stroke-width: 2; rx: 6; }\n      .title-text { font-family: system-ui, sans-serif; font-size: 20px; font-weight: 700; fill: #0f172a; }\n      .label-text { font-family: system-ui, sans-serif; font-size: 15px; font-weight: 600; fill: #1e293b; }\n      .arrow { stroke-width: 3; stroke-linecap: round; marker-end: url(#arrowhead); }\n      @keyframes pulseRays {\n        0%, 100% { opacity: 0.6; stroke-width: 2; }\n        50% { opacity: 1; stroke-width: 3.5; }\n      }\n      .anim-ray { animation: pulseRays 2.5s infinite ease-in-out; }\n    </style>\n    <marker id=\"arrowhead\" markerWidth=\"7\" markerHeight=\"7\" refX=\"5\" refY=\"3.5\" orient=\"auto\">\n      <polygon points=\"0 0, 7 3.5, 0 7\" fill=\"#334155\"/>\n    </marker>\n  </defs>\n  <rect width=\"800\" height=\"500\" class=\"bg\"/>\n  <text x=\"40\" y=\"45\" class=\"title-text\">GCSE Biology: Photosynthesis Process</text>\n  \n  <!-- Sun at top left -->\n  <circle cx=\"120\" cy=\"110\" r=\"35\" class=\"sun\"/>\n  <text x=\"95\" y=\"115\" class=\"label-text\" fill=\"#854d0e\">Sunlight</text>\n  <line x1=\"150\" y1=\"130\" x2=\"270\" y2=\"210\" class=\"sun-ray anim-ray\" stroke=\"#f59e0b\"/>\n  <line x1=\"130\" y1=\"150\" x2=\"240\" y2=\"240\" class=\"sun-ray anim-ray\" stroke=\"#f59e0b\"/>\n  <text x=\"180\" y=\"170\" class=\"label-text\" fill=\"#b45309\">Light Energy</text>\n  \n  <!-- Central Leaf Graphic -->\n  <path d=\"M 280,270 C 300,160 480,170 540,270 C 480,370 300,360 280,270 Z\" class=\"leaf\"/>\n  <path d=\"M 280,270 Q 410,270 540,270\" class=\"leaf-vein\"/>\n  <path d=\"M 360,270 Q 380,220 420,200\" class=\"leaf-vein\"/>\n  <path d=\"M 420,270 Q 440,320 480,340\" class=\"leaf-vein\"/>\n  <text x=\"350\" y=\"260\" class=\"label-text\" fill=\"#ffffff\">Chlorophyll in leaf</text>\n  \n  <!-- Inputs on Left -->\n  <rect x=\"50\" y=\"240\" width=\"180\" height=\"40\" class=\"input-box\"/>\n  <text x=\"60\" y=\"265\" class=\"label-text\" fill=\"#1d4ed8\">Carbon Dioxide (CO₂)</text>\n  <line x1=\"230\" y1=\"260\" x2=\"275\" y2=\"265\" stroke=\"#3b82f6\" class=\"arrow\"/>\n  \n  <rect x=\"50\" y=\"320\" width=\"180\" height=\"40\" class=\"input-box\"/>\n  <text x=\"75\" y=\"345\" class=\"label-text\" fill=\"#1d4ed8\">Water (H₂O) from soil</text>\n  <line x1=\"230\" y1=\"340\" x2=\"280\" y2=\"300\" stroke=\"#3b82f6\" class=\"arrow\"/>\n  \n  <!-- Outputs on Right -->\n  <rect x=\"580\" y=\"220\" width=\"160\" height=\"40\" class=\"output-box\"/>\n  <text x=\"615\" y=\"245\" class=\"label-text\" fill=\"#047857\">Glucose (sugar)</text>\n  <line x1=\"535\" y1=\"250\" x2=\"575\" y2=\"240\" stroke=\"#10b981\" class=\"arrow\"/>\n  \n  <rect x=\"580\" y=\"300\" width=\"160\" height=\"40\" class=\"output-box\"/>\n  <text x=\"625\" y=\"325\" class=\"label-text\" fill=\"#047857\">Oxygen (O₂)</text>\n  <line x1=\"530\" y1=\"285\" x2=\"575\" y2=\"315\" stroke=\"#10b981\" class=\"arrow\"/>\n  \n  <!-- Chemical Equation Card -->\n  <rect x=\"140\" y=\"420\" width=\"530\" height=\"50\" fill=\"#ffffff\" stroke=\"#cbd5e1\" stroke-width=\"1.5\" rx=\"8\"/>\n  <text x=\"160\" y=\"452\" class=\"label-text\" fill=\"#0f172a\">Equation: Carbon Dioxide + Water —(Light)→ Glucose + Oxygen</text>\n</svg>",
+      "model": "gemini-2.5-flash",
+      "usage": {
+        "input_tokens": 490,
+        "output_tokens": 1240,
+        "total_tokens": 1730,
+        "estimated_cost_usd": 0.000409,
+        "actual_cost_usd": 0.0,
+        "pricing_tier": "free_tier_equivalent"
+      },
+      "retries": {
+        "validation": 0,
+        "api": 0,
+        "total_attempts": 1
+      },
+      "checks": {
+        "valid_svg": {
+          "passed": true,
+          "message": "Valid SVG XML and root structure",
+          "details": {
+            "viewBox": "0.0 0.0 800.0 500.0"
+          }
+        },
+        "viewbox_bounds": {
+          "passed": true,
+          "message": "All 27 graphical elements are within viewBox bounds (0 0 800 500)",
+          "details": {
+            "checked_elements": 27
+          }
+        },
+        "title_and_labels": {
+          "passed": true,
+          "message": "Title ('Photosynthesis Diagram') and 9 visible text labels found",
+          "details": {
+            "title": "Photosynthesis Diagram",
+            "label_count": 9,
+            "sample_labels": [
+              "GCSE Biology: Photosynthesis Process",
+              "Sunlight",
+              "Light Energy",
+              "Chlorophyll in leaf",
+              "Carbon Dioxide (CO₂)"
+            ]
+          }
+        },
+        "animation": {
+          "passed": true,
+          "message": "Active animation detected (CSS @keyframes)",
+          "details": {
+            "animation_type": "CSS @keyframes"
+          }
+        },
+        "scientific_content": {
+          "passed": true,
+          "message": "Valid GCSE Photosynthesis: light energy, chemical inputs (CO2/H2O), and outputs (glucose/O2) verified",
+          "details": {
+            "inputs": true,
+            "outputs": true,
+            "light": true
+          }
+        }
+      },
+      "generation_status": "completed",
+      "validation_status": "passed",
+      "review_status": "pending",
+      "review_note": "",
+      "error": null
+    },
+    {
+      "id": "matter",
+      "concept": "States of matter",
+      "subject": "Chemistry",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 500\" width=\"100%\" height=\"100%\">\n  <title>States of Matter</title>\n  <defs>\n    <style>\n      .bg { fill: #f8fafc; }\n      .container-box { fill: #ffffff; stroke: #64748b; stroke-width: 2.5; rx: 8; }\n      .title-text { font-family: system-ui, sans-serif; font-size: 20px; font-weight: 700; fill: #0f172a; }\n      .heading-text { font-family: system-ui, sans-serif; font-size: 16px; font-weight: 700; fill: #1e293b; text-anchor: middle; }\n      .sub-text { font-family: system-ui, sans-serif; font-size: 12px; font-weight: 500; fill: #475569; text-anchor: middle; }\n      .solid-p { fill: #ef4444; stroke: #b91c1c; stroke-width: 1.5; }\n      .liquid-p { fill: #3b82f6; stroke: #1d4ed8; stroke-width: 1.5; }\n      .gas-p { fill: #10b981; stroke: #047857; stroke-width: 1.5; }\n      @keyframes vibrateSolid {\n        0%, 100% { transform: translate(0, 0); }\n        25% { transform: translate(-1px, 1px); }\n        75% { transform: translate(1px, -1px); }\n      }\n      .anim-solid { animation: vibrateSolid 0.25s infinite linear; }\n      @keyframes driftLiquid {\n        0%, 100% { transform: translateY(0); }\n        50% { transform: translateY(-4px); }\n      }\n      .anim-liquid { animation: driftLiquid 2.5s infinite ease-in-out; }\n      @keyframes bounceGas {\n        0% { transform: translate(0, 0); }\n        25% { transform: translate(15px, -20px); }\n        50% { transform: translate(-10px, -10px); }\n        75% { transform: translate(20px, 10px); }\n        100% { transform: translate(0, 0); }\n      }\n      .anim-gas { animation: bounceGas 3s infinite ease-in-out; }\n    </style>\n  </defs>\n  <rect width=\"800\" height=\"500\" class=\"bg\"/>\n  <text x=\"40\" y=\"45\" class=\"title-text\">GCSE Chemistry: States of Matter (Particles)</text>\n  \n  <!-- 1. SOLID BOX -->\n  <rect x=\"70\" y=\"110\" width=\"200\" height=\"260\" class=\"container-box\"/>\n  <text x=\"170\" y=\"95\" text-anchor=\"middle\" class=\"heading-text\">Solid</text>\n  <g class=\"anim-solid\">\n    <!-- 4x4 Grid of 16 touching particles -->\n    <circle cx=\"110\" cy=\"230\" r=\"14\" class=\"solid-p\"/><circle cx=\"140\" cy=\"230\" r=\"14\" class=\"solid-p\"/><circle cx=\"170\" cy=\"230\" r=\"14\" class=\"solid-p\"/><circle cx=\"200\" cy=\"230\" r=\"14\" class=\"solid-p\"/>\n    <circle cx=\"110\" cy=\"260\" r=\"14\" class=\"solid-p\"/><circle cx=\"140\" cy=\"260\" r=\"14\" class=\"solid-p\"/><circle cx=\"170\" cy=\"260\" r=\"14\" class=\"solid-p\"/><circle cx=\"200\" cy=\"260\" r=\"14\" class=\"solid-p\"/>\n    <circle cx=\"110\" cy=\"290\" r=\"14\" class=\"solid-p\"/><circle cx=\"140\" cy=\"290\" r=\"14\" class=\"solid-p\"/><circle cx=\"170\" cy=\"290\" r=\"14\" class=\"solid-p\"/><circle cx=\"200\" cy=\"290\" r=\"14\" class=\"solid-p\"/>\n    <circle cx=\"110\" cy=\"320\" r=\"14\" class=\"solid-p\"/><circle cx=\"140\" cy=\"320\" r=\"14\" class=\"solid-p\"/><circle cx=\"170\" cy=\"320\" r=\"14\" class=\"solid-p\"/><circle cx=\"200\" cy=\"320\" r=\"14\" class=\"solid-p\"/>\n  </g>\n  <text x=\"170\" y=\"400\" text-anchor=\"middle\" class=\"heading-text\" font-size=\"14\">Closely packed</text>\n  <text x=\"170\" y=\"425\" text-anchor=\"middle\" class=\"sub-text\">Vibrate in fixed positions</text>\n  \n  <!-- 2. LIQUID BOX -->\n  <rect x=\"300\" y=\"110\" width=\"200\" height=\"260\" class=\"container-box\"/>\n  <text x=\"400\" y=\"95\" text-anchor=\"middle\" class=\"heading-text\">Liquid</text>\n  <g class=\"anim-liquid\">\n    <!-- Disordered close particles -->\n    <circle cx=\"340\" cy=\"260\" r=\"14\" class=\"liquid-p\"/><circle cx=\"375\" cy=\"255\" r=\"14\" class=\"liquid-p\"/><circle cx=\"410\" cy=\"265\" r=\"14\" class=\"liquid-p\"/><circle cx=\"445\" cy=\"250\" r=\"14\" class=\"liquid-p\"/>\n    <circle cx=\"355\" cy=\"295\" r=\"14\" class=\"liquid-p\"/><circle cx=\"390\" cy=\"290\" r=\"14\" class=\"liquid-p\"/><circle cx=\"430\" cy=\"300\" r=\"14\" class=\"liquid-p\"/><circle cx=\"460\" cy=\"285\" r=\"14\" class=\"liquid-p\"/>\n    <circle cx=\"335\" cy=\"330\" r=\"14\" class=\"liquid-p\"/><circle cx=\"375\" cy=\"335\" r=\"14\" class=\"liquid-p\"/><circle cx=\"415\" cy=\"330\" r=\"14\" class=\"liquid-p\"/><circle cx=\"455\" cy=\"335\" r=\"14\" class=\"liquid-p\"/>\n  </g>\n  <text x=\"400\" y=\"400\" text-anchor=\"middle\" class=\"heading-text\" font-size=\"14\">Close but irregular</text>\n  <text x=\"400\" y=\"425\" text-anchor=\"middle\" class=\"sub-text\">Move past each other</text>\n  \n  <!-- 3. GAS BOX -->\n  <rect x=\"530\" y=\"110\" width=\"200\" height=\"260\" class=\"container-box\"/>\n  <text x=\"630\" y=\"95\" text-anchor=\"middle\" class=\"heading-text\">Gas</text>\n  <g class=\"anim-gas\">\n    <!-- Widely spaced particles -->\n    <circle cx=\"560\" cy=\"160\" r=\"14\" class=\"gas-p\"/>\n    <circle cx=\"680\" cy=\"190\" r=\"14\" class=\"gas-p\"/>\n    <circle cx=\"600\" cy=\"240\" r=\"14\" class=\"gas-p\"/>\n    <circle cx=\"670\" cy=\"300\" r=\"14\" class=\"gas-p\"/>\n    <circle cx=\"570\" cy=\"330\" r=\"14\" class=\"gas-p\"/>\n  </g>\n  <text x=\"630\" y=\"400\" text-anchor=\"middle\" class=\"heading-text\" font-size=\"14\">Far apart</text>\n  <text x=\"630\" y=\"425\" text-anchor=\"middle\" class=\"sub-text\">Move fast in all directions</text>\n</svg>",
+      "model": "gemini-2.5-flash",
+      "usage": {
+        "input_tokens": 475,
+        "output_tokens": 1310,
+        "total_tokens": 1785,
+        "estimated_cost_usd": 0.000429,
+        "actual_cost_usd": 0.0,
+        "pricing_tier": "free_tier_equivalent"
+      },
+      "retries": {
+        "validation": 0,
+        "api": 0,
+        "total_attempts": 1
+      },
+      "checks": {
+        "valid_svg": {
+          "passed": true,
+          "message": "Valid SVG XML and root structure",
+          "details": {
+            "viewBox": "0.0 0.0 800.0 500.0"
+          }
+        },
+        "viewbox_bounds": {
+          "passed": true,
+          "message": "All 47 graphical elements are within viewBox bounds (0 0 800 500)",
+          "details": {
+            "checked_elements": 47
+          }
+        },
+        "title_and_labels": {
+          "passed": true,
+          "message": "Title ('States of Matter') and 10 visible text labels found",
+          "details": {
+            "title": "States of Matter",
+            "label_count": 10,
+            "sample_labels": [
+              "GCSE Chemistry: States of Matter (Particles)",
+              "Solid",
+              "Closely packed",
+              "Vibrate in fixed positions",
+              "Liquid"
+            ]
+          }
+        },
+        "animation": {
+          "passed": true,
+          "message": "Active animation detected (CSS @keyframes)",
+          "details": {
+            "animation_type": "CSS @keyframes"
+          }
+        },
+        "scientific_content": {
+          "passed": true,
+          "message": "Valid GCSE States of Matter: solid, liquid, gas phases with 33 particles verified",
+          "details": {
+            "solid": true,
+            "liquid": true,
+            "gas": true,
+            "particle_count": 33
+          }
+        }
+      },
+      "generation_status": "completed",
+      "validation_status": "passed",
+      "review_status": "pending",
+      "review_note": "",
+      "error": null
+    }
+  ]
+}

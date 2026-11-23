@@ -237,7 +237,11 @@ def validate_svg(svg_content: str, concept_id: str) -> ValidationResult:
                 checked_elements_count += 1
                 # Estimate text width ≈ length * fontSize * 0.6
                 approx_w = len(text_content) * fs * 0.6
-                anchor = node.getAttribute("text-anchor") or "start"
+                anchor = node.getAttribute("text-anchor")
+                if not anchor:
+                    style_attr = node.getAttribute("style") or ""
+                    m = re.search(r"text-anchor\s*:\s*(start|middle|end)", style_attr)
+                    anchor = m.group(1) if m else "start"
                 if anchor == "middle":
                     min_x = x - (approx_w / 2.0)
                     max_x = x + (approx_w / 2.0)
