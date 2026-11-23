@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
-    const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
+    const preferredModel = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
 
     if (!apiKey || apiKey === 'your_gemini_api_key_here') {
       return NextResponse.json({
@@ -176,25 +176,47 @@ STRICT SVG RULES:
 - Include at least 4 visible <text> labels explaining the scientific parts.
 - Include CSS @keyframes or SMIL (<animate>) animation demonstrating the scientific process.`;
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.3 }
-      })
-    });
+    // Attempt generation with automatic retry backoff on 503 / 429
+    const modelsToTry = [preferredModel, 'gemini-2.0-flash', 'gemini-1.5-flash'];
+    let resData: any = null;
+    let successfulModel = preferredModel;
+    let apiRetries = 0;
 
-    const resData = await res.json();
+    for (const currentModel of modelsToTry) {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${apiKey}`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.3 }
+          })
+        });
 
-    if (!res.ok || resData.error) {
-      const errMsg = resData.error?.message || `Gemini API returned error ${res.status}`;
+        resData = await res.json();
+        if (res.ok && resData.candidates?.[0]?.content?.parts?.[0]?.text) {
+          successfulModel = currentModel;
+          break;
+        }
+
+        const errMsg = resData.error?.message || '';
+        const isTransient = errMsg.includes('high demand') || errMsg.includes('503') || errMsg.includes('429');
+        if (isTransient) {
+          apiRetries++;
+          await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+          continue;
+        }
+        break; // Non-transient error, break to next model
+      }
+      if (resData?.candidates?.[0]?.content?.parts?.[0]?.text) break;
+    }
+
+    if (!resData?.candidates?.[0]?.content?.parts?.[0]?.text) {
+      const errMsg = resData?.error?.message || 'Gemini model is temporarily busy. Existing diagrams remain fully intact.';
       return NextResponse.json({
         success: false,
-        error: `Gemini API Error: ${errMsg}. If using an AQ. key, ensure 'Generative Language API' is enabled in Google Cloud Console.`
+        error: `Gemini API Status: ${errMsg}`
       });
     }
 
@@ -216,7 +238,7 @@ STRICT SVG RULES:
       concept: conceptTitle,
       subject: conceptSubject,
       svg: svgCode,
-      model: model,
+      model: successfulModel,
       usage: {
         input_tokens: promptTokens,
         output_tokens: completionTokens,
@@ -227,7 +249,7 @@ STRICT SVG RULES:
       },
       retries: {
         validation: allPassed ? 0 : 1,
-        api: 0,
+        api: apiRetries,
         total_attempts: 1
       },
       checks: checks,
