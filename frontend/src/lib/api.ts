@@ -1,7 +1,5 @@
 import { Dataset, ConceptResult } from '../types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
 export async function fetchInitialDataset(): Promise<Dataset> {
   // Always prioritize loading the bundled results.json to guarantee instant zero-API first load
   try {
@@ -14,7 +12,8 @@ export async function fetchInitialDataset(): Promise<Dataset> {
   }
 
   // Fallback to backend API if available
-  const apiRes = await fetch(`${API_BASE_URL}/api/results`);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/api/results` : '/data/results.json';
+  const apiRes = await fetch(apiUrl);
   if (!apiRes.ok) {
     throw new Error('Failed to load initial diagram dataset');
   }
@@ -25,7 +24,12 @@ export async function generateConceptLive(
   conceptId: string
 ): Promise<{ success: boolean; result?: ConceptResult; error?: string }> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/generate`, {
+    // If NEXT_PUBLIC_API_URL is explicitly set, use it; otherwise use relative /api/generate
+    const endpoint = process.env.NEXT_PUBLIC_API_URL
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/generate`
+      : '/api/generate';
+
+    const res = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -33,20 +37,20 @@ export async function generateConceptLive(
       body: JSON.stringify({ concept_id: conceptId }),
     });
 
+    const data = await res.json().catch(() => ({}));
+
     if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
       return {
         success: false,
-        error: errData.detail || errData.error || `Server returned error status ${res.status}`
+        error: data.detail || data.error || `Server returned error status ${res.status}`
       };
     }
 
-    const data = await res.json();
     return data;
   } catch (err: any) {
     return {
       success: false,
-      error: `Network error connecting to backend (${API_BASE_URL}). Make sure the backend server is running.`
+      error: `Network error connecting to generator endpoint: ${err.message}. Make sure the server is accessible.`
     };
   }
 }
