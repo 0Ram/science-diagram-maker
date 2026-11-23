@@ -1,0 +1,15 @@
+{
+  "name": "science-diagram-maker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered GCSE science diagram generator with automated code validation and reviewer workflow",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix frontend run start",
+    "backend": "./venv/bin/uvicorn backend.main:app --reload --port 8000",
+    "test:backend": "PYTHONPATH=. ./venv/bin/pytest tests/ -v",
+    "generate": "./venv/bin/python3 backend/scripts/generate_all.py",
+    "seed": "./venv/bin/python3 backend/scripts/seed_results.py"
+  }
+}
