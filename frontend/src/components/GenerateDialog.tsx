@@ -10,6 +10,7 @@ interface Props {
 }
 
 const PREDEFINED_CONCEPTS = [
+  { id: 'newton1', title: "Newton's first law (Physics)" },
   { id: 'pythagoras', title: "Pythagoras' theorem (Maths)" },
   { id: 'circle', title: 'Parts of a circle (Maths)' },
   { id: 'circuit', title: 'Series circuit (Physics)' },

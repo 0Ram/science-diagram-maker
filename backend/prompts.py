@@ -77,6 +77,20 @@ CONCEPTS: Dict[str, Dict[str, str]] = {
   - Liquid: Slow gentle floating movement past each other.
   - Gas: Rapid translation of particles bouncing inside container.
 """
+    },
+    "newton1": {
+        "id": "newton1",
+        "title": "Newton's first law",
+        "subject": "Physics",
+        "concept_text": "An object remains at rest, or continues to move at a constant velocity, unless acted upon by a resultant force (Law of Inertia).",
+        "specific_guidance": """
+- Structure into 3 side-by-side cards:
+  1. Stage 1 (Left): Object At Rest. Show a mass on floor with balanced vertical forces Normal Contact Force R = 20 N upwards and Weight W = 20 N downwards. Label F_net = 0 N, v = 0 m/s.
+  2. Stage 2 (Center): Constant Velocity. Show cart smoothly gliding along a frictionless track with velocity vector v = const, a = 0, F_net = 0 N.
+  3. Stage 3 (Right): Unbalanced Force. Show cart striking a barrier (F_barrier contact force acting left) decelerating, while an unrestrained mass continues forward by inertia.
+- Animations: Smooth glide in Stage 2 and collision impact with inertia demonstration in Stage 3.
+- Typography: Use clean text (>= 24px line height). Avoid raw LaTeX notation.
+"""
     }
 }
 

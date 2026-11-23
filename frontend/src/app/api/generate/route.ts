@@ -3,6 +3,12 @@ import { ConceptResult, CheckItem } from '@/types';
 
 // Predefined syllabus rules
 const PREDEFINED_CONCEPTS: Record<string, { title: string; subject: string; guidance: string; keywords: string[] }> = {
+  newton1: {
+    title: "Newton's first law",
+    subject: "Physics",
+    guidance: "Draw 3 distinct side-by-side stages: Stage 1 Object At Rest (balanced vertical forces R=W, F_net=0, v=0), Stage 2 Constant Velocity (frictionless track, F_net=0, a=0, v=const), Stage 3 Unbalanced Force (barrier collision, F_net!=0, inertia of unrestrained mass). Use clear arrows for forces and motion.",
+    keywords: ["inertia", "resultant", "velocity", "rest", "balanced", "force"]
+  },
   pythagoras: {
     title: "Pythagoras' theorem",
     subject: "Maths",
@@ -59,6 +65,16 @@ function extractSvg(text: string): string {
  */
 function fixSvgLayoutAndCollisions(svg: string): string {
   let modifiedSvg = svg;
+
+  // Clean unrendered LaTeX symbols from text
+  modifiedSvg = modifiedSvg
+    .replace(/\\rightarrow/g, '→')
+    .replace(/\\leftarrow/g, '←')
+    .replace(/\\sum\b/g, 'Σ')
+    .replace(/\\Delta\b/g, 'Δ')
+    .replace(/\\neq\b/g, '≠')
+    .replace(/\\approx\b/g, '≈')
+    .replace(/\$([^\$]+)\$/g, '$1');
 
   // 1. Clamp circles within viewBox (0 0 800 500)
   modifiedSvg = modifiedSvg.replace(/<circle\b([^>]*)>/gi, (match, attrs) => {

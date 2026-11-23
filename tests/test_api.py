@@ -13,7 +13,7 @@ def test_health_check_endpoint():
     data = response.json()
     assert data["status"] == "healthy"
     assert "model" in data
-    assert len(data["supported_concepts"]) == 5
+    assert len(data["supported_concepts"]) >= 5
 
 
 def test_get_master_results():

@@ -36,6 +36,16 @@ export function downloadAnimatedSvg(svgContent: string, title: string) {
 export function fixSvgLayoutAndCollisions(svg: string): string {
   let modifiedSvg = svg;
 
+  // Clean unrendered LaTeX symbols from text
+  modifiedSvg = modifiedSvg
+    .replace(/\\rightarrow/g, '→')
+    .replace(/\\leftarrow/g, '←')
+    .replace(/\\sum\b/g, 'Σ')
+    .replace(/\\Delta\b/g, 'Δ')
+    .replace(/\\neq\b/g, '≠')
+    .replace(/\\approx\b/g, '≈')
+    .replace(/\$([^\$]+)\$/g, '$1');
+
   // 1. Clamp circles inside viewBox
   modifiedSvg = modifiedSvg.replace(/<circle\b([^>]*)>/gi, (match, attrs) => {
     const cxM = attrs.match(/\bcx=["']?([\d.]+)["']?/i);
